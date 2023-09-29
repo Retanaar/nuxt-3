@@ -17,7 +17,7 @@
         <div class="mainContainer">
         <div class="controlPanel" v-if="selected && mode === 'view'">
             <div class="buttonWrapper"><img src="~/assets/swg/edit_button.svg" alt="" @click="mode = 'edit'" /></div>
-            <input type="text" />
+            <input type="text" @input="setSearchText" placeholder="Search" />
         </div>
         <MainArea v-if="notes.length" :mode="mode" :selected="selected" :updateNote="updateCurrentNote" />
         </div>
@@ -25,22 +25,32 @@
 </template>
 
 <script setup lang="ts">
+    import { debounce } from 'lodash-es';
     export type ModeType = "view" | "edit" | "create";
     const { getNotes, saveNote, removeNote, updateNote } = await useIndexedDB();
     const mode = ref<ModeType>("view");
     const searchStr = ref<string>("");
-    const data = await getNotes(searchStr);
+    const data = await getNotes(searchStr.value);
     const notes = ref(data);
     const selected = ref(data.length ? data[0] : undefined);
 
+    const setSearchText = debounce(async (e: Event) => {
+        const target = e.target as HTMLTextAreaElement
+    
+        searchStr.value = target.value.length >= 3 ? target.value : "";
+        notes.value = await getNotes(searchStr.value);
+    
+    }, 200)
+
     async function addNote() {
+        searchStr.value = "";
         const res = await saveNote({
             title: "",
             description: "",
             fullText: "",
             created: (new Date()).getTime()
         });
-        const data = await getNotes();
+        const data = await getNotes(searchStr.value);
         notes.value = data;
         selected.value = data[data.length - 1];
         mode.value = "edit";
@@ -59,7 +69,7 @@
         };
 
         await updateNote(buf, selected.value.id);
-        const data = await getNotes();
+        const data = await getNotes(searchStr.value);
         notes.value = data;
 
     }
@@ -68,7 +78,7 @@
 
         if (userConfirmed) {
             await removeNote(selected.value.id);
-            const data = await getNotes();
+            const data = await getNotes(searchStr.value);
             notes.value = data;
             selected.value = data.length ? data[0]: undefined;
         }
@@ -80,11 +90,14 @@
      display: flex;
      width: 100%;
      height: 100vh;
+     overflow: hidden;
  }
  .sidebarContainer {
      width: 300px;
      height: 100%;
      border-right: 1px solid #cccccc;
+     display: flex;
+     flex-direction: column;
  }
  .mainContainer {
      width: 100%;
