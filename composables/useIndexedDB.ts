@@ -34,8 +34,11 @@ async function useIndexedDB(): Promise<ReturnType>{
         return new Promise<iNote[]>((resolve, reject) => {
             const tx = dbConnection.transaction('notes', 'readonly');
             const store = tx.objectStore('notes');
-            const notes: iNote[] = [];
-            store.openCursor().onsuccess = (event) => {
+            const index = store.index('fullTextIndex')
+            let notes: iNote[] = [];
+            //const range = IDBKeyRange.bound("#", "w");
+            const request = store.openCursor();
+            request.onsuccess = (event) => {
                 const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
                 if (cursor) {
                     notes.push({
@@ -47,9 +50,16 @@ async function useIndexedDB(): Promise<ReturnType>{
                     });
                     cursor.continue();
                 } else {
+                    if (searchStr)
+                        notes = notes.filter((note: iNote) => note.fullText.includes(searchStr))
                     resolve(notes);
                 }
             };
+            request.onerror = (evt) => {
+                console.log(evt);
+                reject((evt.target as IDBRequest).error);
+            }
+            
 
         });
     }
