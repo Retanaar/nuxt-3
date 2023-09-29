@@ -11,6 +11,11 @@
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
+    "@types/lodash-es": "^4.17.9",
     "nuxt": "^3.7.4"
+  },
+  "dependencies": {
+    "lodash-es": "^4.17.21",
+    "marked": "^9.0.3"
   }
 }

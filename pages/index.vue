@@ -15,23 +15,24 @@
         <AppSidebar v-else :notes="notes" :selected="selected" :select="select"/>
         </div>
         <div class="mainContainer">
-        <div class="controlPanel" v-if="selected">
-            <div class="buttonWrapper"><img src="~/assets/swg/edit_button.svg" alt="" /></div>
+        <div class="controlPanel" v-if="selected && mode === 'view'">
+            <div class="buttonWrapper"><img src="~/assets/swg/edit_button.svg" alt="" @click="mode = 'edit'" /></div>
             <input type="text" />
         </div>
-        <MainArea  v-if="mode === 'view'" />
+        <MainArea v-if="notes.length" :mode="mode" :selected="selected" :updateNote="updateCurrentNote" />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-    type ModeType = "view" | "edit" | "create";
-    const { getNotes, saveNote, removeNote } = await useIndexedDB();
-    const mode: ModeType = "view"
-    const data = await getNotes();
+    export type ModeType = "view" | "edit" | "create";
+    const { getNotes, saveNote, removeNote, updateNote } = await useIndexedDB();
+    const mode = ref<ModeType>("view");
+    const searchStr = ref<string>("");
+    const data = await getNotes(searchStr);
     const notes = ref(data);
     const selected = ref(data.length ? data[0] : undefined);
-    console.log(data, data.length);
+
     async function addNote() {
         const res = await saveNote({
             title: "",
@@ -42,9 +43,25 @@
         const data = await getNotes();
         notes.value = data;
         selected.value = data[data.length - 1];
+        mode.value = "edit";
     }
     function select(note: iNote) {
         selected.value = note;
+        mode.value = "view";
+    }
+    async function updateCurrentNote(note: string) {
+        const trimNote = note.trim().split("\n");
+        const description = trimNote.slice(1).join("\n").trim().slice(0, 30);
+        const buf: Partial<iNote> = {
+            title: trimNote[0],
+            description,
+            fullText: note,
+        };
+
+        await updateNote(buf, selected.value.id);
+        const data = await getNotes();
+        notes.value = data;
+
     }
     async function removeRecord() {
         const userConfirmed = confirm("Do you really want to delete this note?");
@@ -84,6 +101,7 @@
      margin-left: 2rem;
      border: 1px solid #ffffff;
      padding:3px;
+     cursor: ponter;
  
  }
  .buttonWrapper:hover {
