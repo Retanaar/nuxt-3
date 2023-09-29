@@ -1,8 +1,9 @@
 
 interface ReturnType {
-    getNotes: () => Promise<iNote[]>
+    getNotes: (searchStr: string) => Promise<iNote[]>
     saveNote: (note: iNote) => Promise<iNote>;
     removeNote: (id: number) => Promise<void>;
+    updateNote: (note: iNote, id: number) => Promise<void>;
 }
 
 async function useIndexedDB(): Promise<ReturnType>{
@@ -14,7 +15,8 @@ async function useIndexedDB(): Promise<ReturnType>{
         request.onupgradeneeded = (event) => {
             const db = (event.target as IDBOpenDBRequest).result;
             if (!db.objectStoreNames.contains('notes')) {
-            db.createObjectStore('notes', { keyPath: 'id', autoIncrement: true });
+                const objectStore = db.createObjectStore('notes', { keyPath: 'id', autoIncrement: true });
+                objectStore.createIndex('fullTextIndex', 'fullText', { unique: false });
             }
         };
     
@@ -28,7 +30,7 @@ async function useIndexedDB(): Promise<ReturnType>{
         };
         });
     }
-    function getNotes(): Promise<iNote[]> {
+    function getNotes(searchStr: string): Promise<iNote[]> {
         return new Promise<iNote[]>((resolve, reject) => {
             const tx = dbConnection.transaction('notes', 'readonly');
             const store = tx.objectStore('notes');
@@ -74,11 +76,32 @@ async function useIndexedDB(): Promise<ReturnType>{
             };
         });
     }
+
+    function updateNote(note: Partial<iNote>, id: number): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+           
+            const tx = dbConnection.transaction('notes', "readwrite");
+            const objectStore = tx.objectStore('notes');
+            const record:IDBRequest<iNote> = objectStore.get(id); 
+            record.onsuccess = function(event) {
+                const record = (event.target as IDBRequest).result;
+
+                const updatedRecord = { ...record, ...note };
+                const updateRequest = objectStore.put(updatedRecord);
+
+                updateRequest.onsuccess = function() {
+                    resolve();
+                }
+
+            }
+        })
+    } 
  
     return {
         getNotes,
         saveNote,
         removeNote,
+        updateNote,
     }
 }
 

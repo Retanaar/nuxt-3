@@ -1,8 +1,8 @@
 <template>
     <div class="sidebarWrapper">
         <div v-for="note in notes" :key="note.id" class="rowElement" :class="{ selected: note.id === selected.id}" @click="() => select(note)">
-            <div class="title" :class="{ empty: !note.title}">{{ note.title || 'Empty' }}</div>
-            <div>{{ getTime(note.created) }} {{ note.description }}</div>
+            <div class="title wrap" :class="{ empty: !note.title}">{{ note.title || 'Empty' }}</div>
+            <div class="wrap">{{ getTime(note.created) }} {{ note.description }}</div>
         </div>
     </div>
 </template>
@@ -21,6 +21,11 @@
     }
 </script>
 <style>
+.wrap {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 .sidebarWrapper {
     width: 100%;
     height: 100%;
