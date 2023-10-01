@@ -27,15 +27,14 @@
     white-space: nowrap;
 }
 .sidebarWrapper {
-    padding: 1rem;
-    display: contents;
+    padding: 8px;
     overflow-y: auto;
 }
 
 .rowElement {
     display: flex;
     flex-direction: column;
-    padding: 1rem;
+    padding: 8px;
     font-size: 12px;
     margin: 1rem;
     cursor: pointer;
