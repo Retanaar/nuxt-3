@@ -39,7 +39,7 @@ import { debounce } from 'lodash-es';
     .mainAreaContainer {
         width: 100%;
         height: 100%;
-        margin: 2rem;
+        margin: 16px;
     }
     .mainContainer textarea {
         width: 97%;

@@ -106,12 +106,12 @@
  .buttonsPanel {
      width: 100%;
      display: flex;
-     padding: 1rem;
+     padding: 8px;
  }
  .buttonWrapper {
      width: 20px;
      height: 20px;
-     margin-left: 2rem;
+     margin-left: 16px;
      border: 1px solid #ffffff;
      padding:3px;
      cursor: ponter;
@@ -135,7 +135,7 @@
      display: flex;
      justify-content: space-between;
      align-items: center;
-     margin: 1rem;
+     margin: 8px;
  }
  
  </style>
