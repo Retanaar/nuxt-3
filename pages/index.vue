@@ -15,8 +15,8 @@
         <AppSidebar v-else :notes="notes" :selected="selected" :select="select"/>
         </div>
         <div class="mainContainer">
-        <div class="controlPanel" v-if="selected && mode === 'view'">
-            <div class="buttonWrapper"><img src="~/assets/swg/edit_button.svg" alt="" @click="mode = 'edit'" /></div>
+        <div class="controlPanel" v-if="mode === 'view'">
+            <div><div class="buttonWrapper" v-if="selected" ><img src="~/assets/swg/edit_button.svg" alt="" @click="mode = 'edit'" /></div></div>
             <input type="text" @input="setSearchText" placeholder="Search" />
         </div>
         <MainArea v-if="notes.length" :mode="mode" :selected="selected" :updateNote="updateCurrentNote" />
@@ -38,7 +38,9 @@
         const target = e.target as HTMLTextAreaElement
     
         searchStr.value = target.value.length >= 3 ? target.value : "";
-        notes.value = await getNotes(searchStr.value);
+        const filterNotes = await getNotes(searchStr.value);
+        notes.value = filterNotes;
+        selected.value = filterNotes.length ? filterNotes[0]: undefined;
     
     }, 200)
 
