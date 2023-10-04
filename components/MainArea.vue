@@ -30,7 +30,7 @@ import { debounce } from 'lodash-es';
     function formatDate(created: number) {
         const date = new Date();
         date.setTime(created);
-        return `${date.getDay().toString().padStart(2, '0')}/${date.getMonth().toString().padStart(2, '0')}/${date.getFullYear()} 
+        return `${(date.getDay() + 1).toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()} 
         ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
     }
 </script>
